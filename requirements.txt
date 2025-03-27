@@ -1,7 +1,7 @@
 cvbase==0.5.5
 imageio==2.6.1
 matplotlib
-numpy==1.23.0
+numpy
 # opencv_python==4.1.1.26
 opencv_python==4.5.3.56
 Pillow==9.2.0
