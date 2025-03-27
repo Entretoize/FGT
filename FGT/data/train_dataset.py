@@ -39,8 +39,8 @@ class VideoBasedDataset(Dataset):
     def __getitem__(self, idx):
         try:
             item = self.load_item(idx)
-        except:
-            print('Loading error: ' + self.train_list[idx])
+        except Exception as e:
+            print(f'Loading error: {self.train_list[idx]}, {e}')
             item = self.load_item(0)
         return item
 
@@ -162,4 +162,3 @@ class VideoBasedDataset(Dataset):
                     item = torch.from_numpy(np.transpose(item, (0, 3, 1, 2))).float()  # [t, c, h, w]
                 data_list[key] = item
         return data_list
-

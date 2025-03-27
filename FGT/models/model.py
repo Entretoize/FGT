@@ -281,4 +281,3 @@ class FGT(BaseNetwork):
         output = self.decoder(enc_feats)
         output = torch.tanh(output)
         return output
-
