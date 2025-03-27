@@ -110,5 +110,3 @@ class EdgeDetection(BaseNetwork):
         edge = self.out_layer(edge)
         edge = torch.sigmoid(edge)
         return edge
-
-
