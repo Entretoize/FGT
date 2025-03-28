@@ -32,7 +32,29 @@ import utils.region_fill as rf
 from utils.Poisson_blend_img import Poisson_blend_img
 from get_flowNN_gradient import get_flowNN_gradient
 from torchvision.transforms import ToTensor
-import cvbase
+# remplacer import cvbase par:
+try:
+    import mmcv  # utiliser mmcv à la place de cvbase
+except ImportError:
+    # Fallback: implémentation minimale des fonctions nécessaires
+    class mmcv_minimal:
+        @staticmethod
+        def ProgressBar(task_num, bar_width=50):
+            class ProgressBar:
+                def __init__(self, task_num, bar_width):
+                    self.task_num = task_num
+                    self.bar_width = bar_width
+                    self.completed = 0
+                
+                def update(self):
+                    self.completed += 1
+                    percent = self.completed / float(self.task_num)
+                    bar_str = '[' + '█' * int(bar_width * percent) + '-' * (bar_width - int(bar_width * percent)) + ']'
+                    print(f'\r{bar_str} {self.completed}/{self.task_num}', end='')
+                    if self.completed == self.task_num:
+                        print()
+            return ProgressBar(task_num, bar_width)
+    mmcv = mmcv_minimal
 
 
 def to_tensor(img):
@@ -126,15 +148,15 @@ def save_flows(output, videoFlowF, videoFlowB):
     for i in range(N):
         forward_flow = videoFlowF[..., i]
         backward_flow = videoFlowB[..., i]
-        forward_flow_vis = cvbase.flow2rgb(forward_flow)
-        backward_flow_vis = cvbase.flow2rgb(backward_flow)
-        cvbase.write_flow(
+        forward_flow_vis = mmcv.flow2rgb(forward_flow)
+        backward_flow_vis = mmcv.flow2rgb(backward_flow)
+        mmcv.write_flow(
             forward_flow,
             os.path.join(
                 output, "completed_flow", "forward_flo", "{:05d}.flo".format(i)
             ),
         )
-        cvbase.write_flow(
+        mmcv.write_flow(
             backward_flow,
             os.path.join(
                 output, "completed_flow", "backward_flo", "{:05d}.flo".format(i)
@@ -390,7 +412,7 @@ def read_flow(flow_dir, video):
     Flow = np.empty(((imgH, imgW, 2, 0)), dtype=np.float32)
     flows = sorted(glob.glob(os.path.join(flow_dir, "*.flo")))
     for flow in flows:
-        flow_data = cvbase.read_flow(flow)
+        flow_data = mmcv.read_flow(flow)
         h, w = flow_data.shape[:2]
         flow_data = cv2.resize(flow_data, (imgW, imgH), cv2.INTER_LINEAR)
         flow_data[:, :, 0] *= float(imgW) / float(w)
